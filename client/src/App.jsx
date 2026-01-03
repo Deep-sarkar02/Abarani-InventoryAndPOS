@@ -11,6 +11,8 @@ import Home from './pages/Home';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import ContactUs from './pages/ContactUs';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -18,6 +20,7 @@ function App() {
       <AuthProvider>
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Navbar />
+          <ToastContainer position="top-right" autoClose={3000} theme="dark" />
           <div style={{ flex: 1 }}>
             <Routes>
               <Route path="/login" element={<Login />} />

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Plus, Search, AlertCircle, CheckCircle } from 'lucide-react';
 import { API_URL } from '../config';
+import { toast } from 'react-toastify';
 
 const Inventory = () => {
     const [products, setProducts] = useState([]);
@@ -34,9 +35,10 @@ const Inventory = () => {
             await axios.post(`${API_URL}/api/products`, formData, config);
             setShowForm(false);
             setFormData({ name: '', company: '', color: '', size: '', cp: '', sp: '', stock: '', minThreshold: 5 });
+            toast.success('Product added successfully!');
             fetchProducts();
         } catch (err) {
-            alert(err.response?.data?.error || 'Error adding product');
+            toast.error(err.response?.data?.error || 'Error adding product');
         }
     };
 

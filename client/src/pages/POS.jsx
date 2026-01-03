@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart, CheckCircle, Package } from 'lucide-react';
 import { API_URL } from '../config';
+import { toast } from 'react-toastify';
 
 const POS = () => {
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [paymentMethod, setPaymentMethod] = useState('cash');
-    const [successMsg, setSuccessMsg] = useState('');
 
     const token = localStorage.getItem('token');
     const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -38,16 +38,16 @@ const POS = () => {
                 paymentMethod
             }, config);
 
-            setSuccessMsg(`Sale Complete: ₹${productDetails.sp * quantity}`);
+
+
+            toast.success(`Sale Complete: ₹${productDetails.sp * quantity}`);
             setQuantity(1);
             setSelectedProduct('');
             // Refresh products
             const res = await axios.get(`${API_URL}/api/products`, config);
             setProducts(res.data);
-
-            setTimeout(() => setSuccessMsg(''), 3000);
         } catch (err) {
-            alert(err.response?.data?.message || 'Sale Failed');
+            toast.error(err.response?.data?.message || 'Sale Failed');
         }
     };
 
@@ -57,12 +57,6 @@ const POS = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
                 <div className="card">
-                    {successMsg && (
-                        <div style={{ backgroundColor: 'rgba(35, 134, 54, 0.15)', color: '#3fb950', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid rgba(35, 134, 54, 0.2)' }}>
-                            <CheckCircle size={20} /> {successMsg}
-                        </div>
-                    )}
-
                     <form onSubmit={handleSale}>
                         <div style={{ marginBottom: '1.5rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8b949e', fontSize: '0.875rem', fontWeight: '500' }}>Select Product</label>
@@ -71,7 +65,7 @@ const POS = () => {
                                 value={selectedProduct}
                                 onChange={e => setSelectedProduct(e.target.value)}
                                 required
-                                style={{ height: '3rem' }} // Taller touch target
+                                style={{ height: '3rem' }}
                             >
                                 <option value="">-- Search or Select Product --</option>
                                 {products.map(p => (
@@ -156,3 +150,4 @@ const POS = () => {
 };
 
 export default POS;
+

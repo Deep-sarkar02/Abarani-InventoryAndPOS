@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserPlus, Users, Mail, Lock, User } from 'lucide-react';
+
+import { UserPlus, Users, Mail, Lock, User, Trash2 } from 'lucide-react';
 import { API_URL } from '../config';
+import { toast } from 'react-toastify';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -10,8 +12,6 @@ const UserManagement = () => {
     const [formData, setFormData] = useState({
         name: '', email: '', password: '', role: 'user'
     });
-    const [successMsg, setSuccessMsg] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
 
     const token = localStorage.getItem('token');
     const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -32,18 +32,27 @@ const UserManagement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMsg('');
-        setSuccessMsg('');
 
         try {
             await axios.post(`${API_URL}/api/auth/register`, formData, config);
             setShowForm(false);
             setFormData({ name: '', email: '', password: '', role: 'user' });
-            setSuccessMsg(`User "${formData.name}" created successfully!`);
+            toast.success(`User "${formData.name}" created successfully!`);
             fetchUsers();
-            setTimeout(() => setSuccessMsg(''), 3000);
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'Error creating user');
+            toast.error(err.response?.data?.message || 'Error creating user');
+        }
+    };
+
+    const handleDelete = async (userId, userName) => {
+        if (window.confirm(`Are you sure you want to delete user "${userName}"?`)) {
+            try {
+                await axios.delete(`${API_URL}/api/auth/${userId}`, config);
+                toast.success('User deleted successfully');
+                fetchUsers();
+            } catch (err) {
+                toast.error(err.response?.data?.message || 'Error deleting user');
+            }
         }
     };
 
@@ -61,21 +70,13 @@ const UserManagement = () => {
                 </button>
             </div>
 
-            {successMsg && (
-                <div style={{ backgroundColor: 'rgba(35, 134, 54, 0.15)', color: '#3fb950', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid rgba(35, 134, 54, 0.2)' }}>
-                    {successMsg}
-                </div>
-            )}
+
 
             {showForm && (
                 <div className="card" style={{ marginBottom: '2rem' }}>
                     <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Create New User</h3>
 
-                    {errorMsg && (
-                        <div style={{ backgroundColor: 'rgba(218, 54, 51, 0.1)', color: '#f85149', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', border: '1px solid rgba(218,54,51,0.2)', fontSize: '0.9rem' }}>
-                            {errorMsg}
-                        </div>
-                    )}
+
 
                     <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
@@ -136,7 +137,7 @@ const UserManagement = () => {
                             <button type="submit" className="btn btn-primary">
                                 <UserPlus size={18} /> Create User
                             </button>
-                            <button type="button" className="btn btn-secondary" onClick={() => { setShowForm(false); setErrorMsg(''); }}>
+                            <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
                                 Cancel
                             </button>
                         </div>
@@ -155,6 +156,7 @@ const UserManagement = () => {
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Actions</th>
                                 <th>Created</th>
                             </tr>
                         </thead>
@@ -170,6 +172,17 @@ const UserManagement = () => {
                                             <span className="badge-low-stock">ADMIN</span>
                                         ) : (
                                             <span className="chip chip-success">USER</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {u.role !== 'admin' && (
+                                            <button
+                                                onClick={() => handleDelete(u._id, u.name)}
+                                                style={{ background: 'none', border: 'none', color: '#da3633', cursor: 'pointer', padding: '4px' }}
+                                                title="Delete User"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         )}
                                     </td>
                                     <td style={{ color: '#8b949e', fontSize: '0.875rem' }}>

@@ -51,3 +51,20 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Delete User (Admin Only)
+exports.deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Prevent deleting self (optional safety)
+        // if (user._id.toString() === req.user.id) return res.status(400).json({ message: 'Cannot delete yourself' });
+
+        await user.deleteOne();
+        res.json({ message: 'User removed' });
+    } catch (err) {
+        console.error('Delete Error:', err);
+        res.status(500).json({ message: err.message });
+    }
+};
