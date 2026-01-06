@@ -1,4 +1,4 @@
-# Abarani Hosiery - Inventory & POS System
+# Abarani Hosiery - Inventory & POS System-
 
 ![Abarani Home Page](readme-assets/home-preview.png)
 
